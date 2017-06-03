@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8"/>
+        <title>Test Suite</title>
+        <script>
+        function assert(value, desc){
+            var li = document.createElement('li');
+            li.className = value ? 'pass' : 'fail';
+
+            desc += value ? ' (성공)' : ' (실패)';
+            li.appendChild(document.createTextNode(desc));
+            document.getElementById('result').appendChild(li);
+        }
+
+        window.onload = function(){
+            assert(true, 'suite test pass');
+            assert(false, 'suite test fail')
+        };
+
+        </script>
+        <style>
+            #result li.pass {
+                color: green;
+            }
+            #result li.fail {
+                color: red;
+            }
+        </style>
+    </head>
+    <body>
+        <ul id='result'></ul>
+    </body>
+</html>
