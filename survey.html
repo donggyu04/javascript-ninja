@@ -1,0 +1,225 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+	<link rel="stylesheet" type="text/css" href="img/type_A.css">
+	<title>설문작성 SW인턴십 이동규</title>
+	<script src="http://code.jquery.com/jquery.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+</head>
+<body>
+	<form id="mainForm">
+		<table cellspacing="0" cellpadding="0" border="0" width="100%">
+			<tbody>
+				<tr align="left"><td height="26" colspan="5" ><b>설문 기본정보</b></td></tr>
+
+				<tr><td width="112" height="20" align="left" style="padding-left:10px"><B>제목</B></td>
+					<td width="1"></td>
+					<td colspan="3" align="left"><input id="title" name="title" style="width:80%;" class="input" required="required">
+					</td>
+				</tr>
+
+				<tr><td bgcolor="E5E5E5" height="1" colspan="5"></td></tr>
+
+				<tr> 
+					<td height="25" align="left" style="padding-left:10px"><B>설문기간</B></td>
+					<td width="1"></td>
+					<td height="25" colspan="3" align="left">
+						<div id="minical" onclick="this.style.display='none';" style="bgcolor:#000000; margin: 5; margin-top: 2;border-top: 1 solid buttonhighlight;border-left: 1 solid buttonhighlight;border-right: 1 solid buttonshadow;border-bottom: 1 solid buttonshadow;width:155;display:none;position: absolute; z-index:50">
+						</div>
+						<input maxlength="10" size="10" value="" name="sdate" id="inputStartDate" required="required">일 
+						~ 
+						<input id="inputEndDate" maxlength="10" size="10" value="" name="edate" required="required">일
+						&nbsp;&nbsp;&nbsp; 
+						<select id="select" style="height: 22px" tabindex="8" onChange="onChangePeriod(this)" name="term">
+						<option value selected>[설문 기간 선택] 
+						<option value="1주">1주일 후 종료 
+						<option value="2주">2주일 후 종료 
+						<option value="3주">3주일 후 종료   
+						<option value="4주">4주일 후 종료 
+						<option value="user">(사용자 직접 입력)</option>
+						</select><br/>
+					</td>
+				</tr>	   
+			</tbody>
+		</table>
+			  
+		<table width="100%" border="0" cellspacing="0" cellpadding="0">
+		<tr><td height=20></td></tr>
+		</table>
+
+	    <!-- 설문 테이블 --> 
+	  	<table id="PollAsk" cellSpacing="0" cellPadding="3" width="100%" border="0">
+		  	<tr><td colSpan="5">
+		  	<table width="100%" border="0" cellspacing="0" cellpadding="0"></td>
+		  	<tr> 
+				<td align="left" valign="bottom"><b>설문내용</b></td>
+				<td align="right"> 항목추가 버튼을 누르시면 더 많은 질문을 입력할 수 있습니다.
+					<input type="button" id="addListBtn" value="항목추가" onclick="onClickAddListBtn()">
+					<input type="button" id="deleteListBtn" value="항목삭제" onclick="onClickDeleteList()">
+				</td>
+				</tr>
+				</table></td></tr>
+			<tr align="middle"> <td height="2" colspan="5" class="tdcolor1"></td></tr>
+				 
+			<tr align="middle" bgcolor="F6F6F6"> 
+				<td width="10%" height="25" style="padding-left:10px"><B>번호</B></td>
+				<td width="35%"><B>설문문항</B></td>
+				<td width="15%"><B>설문유형</B></td>
+				<td width="10%"><B>중복</B></td>
+				<td><B>항목보기</B></td>
+			</tr>
+			<tr height="3"><td bgcolor="E4E4E4" colspan="5"></td></tr>
+			<tr height="1"><td bgcolor="D3D3D3" colspan="5"></td></tr>
+
+			<tbody id="survey_table_body"></tbody>
+		</table>
+
+
+		<table cellSpacing="0" cellPadding="3" width="100%" border="0" >
+			<tr align="right"><td height="5" colspan="5" ></td></tr>
+			<tr height="3"><td bgcolor="E4E4E4" colspan="5"></td></tr>
+			<tr height="1"><td bgcolor="D3D3D3" colspan="5"></td></tr>
+			<tr align="right">
+				<td height="30" colspan=5 >
+					<input type="button" name="ok_btn" value="확인" onClick="onClickSubmit();">
+					<input type="button" name="rewrite_btn" value="다시쓰기" onClick="onClickReset()" >
+					<input type="button" name="back_btn" value="이전화면"  onClick="onClickBack()">
+				</td>
+			</tr>
+		</table>
+  	</from>
+  </body>
+  <script>
+  		$(document).ready(function(){
+  			// 전역변수 초기화
+  			listNum = 0;
+  			$inputStartDate = $('#inputStartDate');
+  			$inputEndDate = $('#inputEndDate');
+  			$tableBody = $('#survey_table_body');
+
+  			$inputStartDate.datepicker();
+  			$inputEndDate.datepicker();
+
+  			// 객관식, 주관식, 객곽식+주관식 선택시 처리
+  			$('body').on('change', '.select_type', function(){
+				if(this.value === 'J'){
+					$(this).parent().next().next().children().hide();
+				}else{
+					$(this).parent().next().next().children().show();
+				}
+  			});
+
+
+  			var today = new Date();
+  			$inputStartDate.val(today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear());
+  			// 초기 항목 1개 추가
+  			onClickAddListBtn();
+  		});
+
+		// 객관식, 주관식 선택시 항목입력 버튼 disable, enable 처리
+		function onClickAddList(obj){
+			var popup = window.open('popup.html#' + obj.getAttribute('id'), '', 'width=500, height=400, status=1');
+		}
+
+		// 항목추가 처리
+		function onClickAddListBtn(){
+			++listNum;
+			var nodeStr = 	
+				'<tr align="middle">' + 
+					'<td height="30" >%surveyNum%</td>' + 
+					'<td height="30">' +
+					  '<input type="text" maxLength="50" size="30" name="ask" onclick="" style="ime-mode:active;" id="%surveyName%">' +
+					'</td>' +	
+					'<td width="15%" height="30">' + 
+					  '<select style="width: 80px" class="select_type" id="%surveyType%">' + 
+						'<option value="O" selected>객관식</option>' + 
+						'<option value="J">주관식</option>' + 
+						'<option value="A">객관+주관식</option>' + 
+					  '</select>' + 
+					'</td>' + 
+					'<td height="30"><input name="answer_example" type="checkbox" value="Y"></td>' + 
+					'<td height="30" nowrap align=left>' + 
+					  '<select style="width: 130px" name="exce" id="%optionSelect%"></select>' + 
+					  '<input type="button" id="%addItemBtnId%" value="항목입력" onclick="onClickAddList(this)">' + 
+					'</td>' + 
+				  '</tr>';
+
+			nodeStr = nodeStr.replace('%surveyNum%', listNum + '');
+			nodeStr = nodeStr.replace('%surveyName%', 'survey_name' + listNum);
+			nodeStr = nodeStr.replace('%surveyType%', 'survey_type' + listNum);
+			nodeStr = nodeStr.replace('%optionSelect%', 'option_select' + listNum);
+			nodeStr = nodeStr.replace('%addItemBtnId%', listNum + '');
+			$tableBody.append($(nodeStr));
+		}
+
+		// 다시쓰기
+		function onClickReset(){
+			window.location.reload();
+		}
+
+		// 항목삭제
+		function onClickDeleteList(){
+			if(listNum < 1) return;
+			listNum--;
+			$tableBody.children('tr:last').remove();
+		}
+
+		// 설문기간 선택 처리
+		function onChangePeriod(obj){
+			var today = new Date().getTime();
+			var endDate = 0;
+			switch(obj.value){
+				case '1주':
+				today += 7 * 24 * 60 * 60 * 1000;
+				break;
+				case '2주':
+				today += 14 * 24 * 60 * 60 * 1000;
+				break;
+				case '3주':
+				today += 21 * 24 * 60 * 60 * 1000;
+				break;
+				case '4주':
+				today += 28 * 24 * 60 * 60 * 1000;
+				break;
+				default:
+				today = 0;
+			}
+			if(today === 0) inputEndDate.value = '';
+			else{
+				today = new Date(today);
+				endDate = today.getFullYear() + '.' + (today.getMonth() + 1) + '.' + today.getDate();
+				$inputEndDate.val(endDate);
+			}
+  		}
+
+  		function onClickBack(){
+  			history.go(-1);
+  		}
+
+  		function onClickSubmit(){
+  			var title = document.getElementById('title').value;
+
+  			var result = '제목 : ' + title + '\n' + '설문기간 : ' + inputStartDate.value + ' ~ ' + inputEndDate.value + '\n';
+
+  			for(var i=1;i<=listNum;i++){
+  				var surveyName = document.getElementById('surveyName' + i);
+  				var surveyType = document.getElementById('surveyType' + i);
+  				var option = document.getElementById('optionSelect' + i);
+  				result += '설문번호 : ' + i + '\n';
+  				result += '설문문항 : ' + surveyName.value + '\n';
+  				result += '설문유형 : ' + surveyType.options[surveyType.selectedIndex].text + '\n';
+  				result += '설문항목\n';
+  				for(var j=0;j<option.length;j++){
+  					result += '[' + j + '] : ' +  option[j].text + '\n';
+  				}
+  			}
+
+  			alert(result);
+  			onClickReset();
+  		}
+
+  </script>
+</body>
+</html>

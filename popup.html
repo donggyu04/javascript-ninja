@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html;charset=utf-8">
+		<title>설문조사 등록</title>
+		<script src="http://code.jquery.com/jquery.min.js"></script>
+	</head>
+	<body topmargin="0" leftmargin="0" marginheight="0" marginwidth="0"   background="img/pop_bg.gif">
+		<form name="form1" >
+			<table cellpadding="0" cellspacing="0" border="0" width="100%">
+				<tr height="42">
+					<td style="padding-left:12px;padding-top:3px" valign="middle">
+			          <IMG src="img/bullet_11.gif" border="0" align="absmiddle"> 
+			          <font color="000000"><B>설문항목 등록</B></font>
+			        </td>
+				</tr>
+				<tr>
+					<td style="padding-left:5;padding-right:5px">
+					<table cellpadding="0" cellspacing="0" border="0" width="100%" width="394">
+						<tr>
+							<td colspan="3" bgcolor="FFFFFF" style="padding:10 10 3 10px" align="center">
+							<!-- 내용 시작 -->
+
+							  <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+								<tr> 
+								  <td></td>
+								  <td height="30" align="right" valign="middle" style="padding-top:10px"> 
+								  <input type="button" name="" value="항목추가" onclick="onClickAddList()">
+								  <input type="button" name="" value="항목삭제" onclick="onClickDeleteList()">
+								  <td>
+								</tr>
+							  </table>
+							  <table width="100%" border="0" align="center" cellpadding="0" cellspacing="0">
+							   <tr>
+									<td align="top">
+										<table cellPadding="0" cellspacing="1" width="100%" border="0" id="extable">
+											<tr>
+												<td width="111" height="24" align="center" bgcolor="f6f6f6"><strong>항목선택</strong></td>
+												<td align="center" class="facebg2">
+												   <select name="sel" onchange="onChangeOptionList(this)" id="surveyTitle">
+													 <option value="7">보기를 선택하거나 아래 창에서 직접 입력 </option>
+													 <option value="0">5 Scale</option>
+													 <option value="1">5 Scale [기호,선호]</option>
+													 <option value="2">5 Scale [구매 의도]</option>
+													 <option value="3">5 Scale [신념]</option>
+													 <option value="4">5 Scale [평가]</option>
+													 <option value="5">Yes/No</option>
+													 <option value="6">찬성/반대</option>
+													</select>
+												</td>
+											</tr>
+											<!-- // 보기항목들이 추가되는 곳 -->
+											<tbody id="option_table"></tbody>
+										</table>
+									</td>
+								</tr>
+								<tr>
+								  <td height="32" align="right" valign="bottom" style="padding-right:5px">
+								  <input type="button" name="" value="반영" onclick="onClickSubmit()">
+								  <input type="button" name="" value="취소" onclick="onClickCancel()">
+								  </td>
+								</tr>
+							</table>
+							<!-- 내용 끝 -->
+							</td>
+						</tr>
+					</table>
+					</td>
+				</tr>
+			</table>
+		</form>
+	</body>
+</html>
+
+<script>
+
+	$(document).ready(function(){
+		// 전역변수 초기화
+		currentIdx = 0;
+		defaultItemSize = 5;
+		
+		itemArr = [];
+		itemArr[0] = ['아주 좋음', '좋음', '보통', '나쁨', '아주 나쁨'];
+		itemArr[1] = ['아주 좋다', '좋다', '그저 그렇다', '싫다', '아주 싫다'];
+		itemArr[2] = ['꼭 산다', '산다', '잘 모르겠다', '안산다', '절대 안산다'];
+		itemArr[3] = ['확실히 그렇다', '그렇다', '보통이다', '아니다', '절대 아니다'];
+		itemArr[4] = ['아주 우수하다', '우수하다', '보통이다', '형편없다', '아주 형편없다'];
+		itemArr[5] = ['찬성', '반대', '모르겠다'];
+		itemArr[6] = ['그렇다', '아니다', '잘 모른다'];
+		$tableBody = $('#option_table');
+
+		for(var i = 0; i < defaultItemSize; i++) onClickAddList();	
+	});
+
+	function onChangeOptionList(obj){
+		clearitems();
+		switch(obj.value){
+			case '0':
+			case '1':
+			case '2':
+			case '3':
+			case '4':
+			case '5':
+			case '6':
+			setItems(obj.value);
+			break;
+			default:
+		}
+	}
+
+	function setItems(val){
+		var itemIdx = parseInt(val);
+		$('[name^=ex]').each(function(idx){
+			if(!itemArr[itemIdx][idx]) return;
+			this.value = itemArr[itemIdx][idx];
+		});
+	}
+
+	function onClickSubmit(){
+
+		var hashValue = document.location.hash;
+		var id = hashValue.substring(1);
+		var $parentSelect = $(window.opener.document.getElementById('option_select' + id));
+
+		$('[name^=ex]').each(function(idx){
+			if(this.value.trim() != ''){
+				var nodeStr = '<option>' + this.value.trim() + '</option>';
+				$parentSelect.append(nodeStr);
+			}
+		});
+		window.close();
+	}
+
+	function clearitems(){
+		$('[name^=ex]').each(function(){
+			this.value = '';
+		});
+	}
+
+	function onClickAddList(){
+		currentIdx++;
+		var nodeStr = '<tr><td align="center"><b>%itemNum%</b></td><td align="center"><input type="text" maxlength="25" style="width:250px;" name="%inputName%" size="20" id="%inputId%" /></td></tr>';
+
+		nodeStr = nodeStr.replace('%itemNum%', '보기' + currentIdx);
+		nodeStr = nodeStr.replace('%inputName%', 'ex' + currentIdx);
+		nodeStr = nodeStr.replace('%inputId%', 'val_id' + currentIdx);
+
+		$tableBody.append($(nodeStr));
+	}
+
+	function onClickCancel(){
+		window.close();
+	}
+
+	function onClickDeleteList(){
+		if(currentIdx < 1) return;
+		currentIdx--;
+		$tableBody.children('tr:last').remove();
+	}
+
+</script>
